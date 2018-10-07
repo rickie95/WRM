@@ -1,0 +1,18 @@
+<document>
+	<mode>	MANUAL	</mode>
+	<manual_temp>	17	</manual_temp>
+	<holiday_temp>15</holiday_temp>
+	<max_temp> 25 </max_temp>
+	<daily_scheduling>
+		<element order="1">
+			<start_time hour="6" minute="30"></start_time>
+			<end_time hour="8" minute="30"></end_time>
+			<temp value="18"></temp>
+		</element>
+		<element order="2">
+			<start_time hour="8" minute="30"></start_time>
+			<end_time hour="11" minute="45"></end_time>
+			<temp value="20"></temp>
+		</element>
+	</daily_scheduling>
+</document>
