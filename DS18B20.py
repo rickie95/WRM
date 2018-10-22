@@ -2,7 +2,8 @@ import os
 import glob
 import time
 
-class TempSensor():
+
+class TempSensor:
 
     def __init__(self):
         os.system('modprobe w1-gpio')
@@ -21,13 +22,10 @@ class TempSensor():
         lines = self.read_temp_raw()
         while lines[0].strip()[-3:] != 'YES':                   # ignore first line
             time.sleep(0.2)
-            lines = read_temp_raw()
+            lines = self.read_temp_raw()
         equals_pos = lines[1].find('t=')
         temp = None    # find temperature in the details
         if equals_pos != -1:
             temp_string = lines[1][equals_pos+2:]
             temp = float(temp_string) / 1000.0                 # convert to Celsius
         return temp
-
-#T = TempSensor()
-#print(str(T.get_temp()))

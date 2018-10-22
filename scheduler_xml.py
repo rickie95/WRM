@@ -1,58 +1,58 @@
 import datetime
-import tempfile
 import xml.etree.ElementTree as ET
 
+
 class SchedManager:
-	#Parametri statici, accessibili ad ogni istanza della classe
+	# Static params, so every instance of SchedManager work on same data
 	MaxT = ""
 	ManualT = ""
 	HolidayT = ""
 	NoFreezeT = ""
 	Mode = ""
-	sched = [] # e' una lista di fasce
+	sched = []  # Schedule entries list
 	daily = []
 	
-	def __init__(self): # apre il file e legge le informazioni di base, procede a creare lo scheduler  e le fasce se in mod W o D
+	def __init__(self):
 		
 		try:		
 			self.file = ET.parse('scheduling.xml').getroot()
-		except:
-			print("Problemi con il file")
-			return null
+		except Exception as ex:
+			print("Problems with file")
+			print(ex)
+			return None
 		
-		Mode = self.file.find('mode').text.strip()
-		HolidayT = self.file.find('holiday_temp').text.strip()
+		mode = self.file.find('mode').text.strip()
+		holidayT = self.file.find('holiday_temp').text.strip()
 		MaxT = self.file.find('max_temp').text.strip()
 		
-		print(Mode)
-		print(HolidayT)
+		print(mode)
+		print(holidayT)
 		
 		self.f_gg = self.setFasciaD()
 		self.f_gg.printFascia()
 
-	def setFasciaD(self): #leggo il file andando a cercare le fasce per lo scheduler giornaliero
-                daily = self.file.find('daily_scheduling')
-                fascia_gg = FasciaGiornaliera()   
+	def setFasciaD(self):  # Read the file, looking for scheduler entries
+		daily = self.file.find('daily_scheduling')
+		fascia_gg = FasciaGiornaliera()
 		
 		for element in daily:
-                    key = int(element.attrib['order'])
-                    start, end, temp = element
-                    h_ss, m_ss = start.attrib
-                    h_ee, m_ee = end.attrib
-                    ss = int(start.attrib[h_ss])*60 + int(start.attrib[m_ss])
-                    ee = int(end.attrib[h_ss])*60 + int(end.attrib[m_ss])
-                    temp = int(temp.attrib['value'])
-                    fascia_gg.addFascia(key, ss, ee, temp)
-                    print(key, ss, ee, temp)
-                
-                return fascia_gg
+			key = int(element.attrib['order'])
+			start, end, temp = element
+			h_ss, m_ss = start.attrib
+			h_ee, m_ee = end.attrib
+			ss = int(start.attrib[h_ss])*60 + int(start.attrib[m_ss])
+			ee = int(end.attrib[h_ss])*60 + int(end.attrib[m_ss])
+			temp = int(temp.attrib['value'])
+			fascia_gg.addFascia(key, ss, ee, temp)
+			print(key, ss, ee, temp)
+		return fascia_gg
 
 	def setFasceW(self):
 		pass
 	
 	def refTemp(self):
-		if self.isChanged():	
-			self.__init__()
+		#if self.isChanged():
+		#	self.__init__()
 
 		if self.Mode == "W":
 			return self.getWeeklyT()
@@ -74,7 +74,8 @@ class SchedManager:
 		DOW = datetime.datetime.today().weekday()
 		fascia = self.sched[DOW]
 		return fascia.getTempByTime(time.hour, time.minute)
-	
+
+	# Deprecated
 	def isChanged(self):
 		f = open(self.path+"changed.txt", "r+w")
 		for line in f:
@@ -85,7 +86,7 @@ class SchedManager:
 			if line == "False":
 				print("Il file non e' stato modificato")
 				esit = False
-		if esit == True:
+		if esit is True:
 			f.seek(0)
 			f.truncate()
 			f.write("False")
@@ -176,22 +177,22 @@ class FasciaGiornaliera:
 		self.day = d
 		self.lista = []
 
-	def getTempByTime(self,hour, minute):
-            actual_time = hour * 60 + minute
+	def getTempByTime(self, hour, minute):
+		actual_time = hour * 60 + minute
 		for elem in self.lista:
 			key, s, e, t = elem
-			if( s <= actual_time && actual_time <= e ):
-                            return t
+			if s <= actual_time <= e:
+				return t
 		return None
 
-	def setLista(self, lista): # dove lista è una lista di righe del tipo hh:mm,hh:mm,temp
+	def setLista(self, entry_temp_list): # dove lista è una lista di righe del tipo hh:mm,hh:mm,temp
 		self.lista = []
 		key = 1
-		for row in lista:
+		for row in entry_temp_list:
 			s, e, t = row
 			ss, se = s.split(":")
 			es, ee = e.split(":")
-			self.lista.append(( key, int(ss)*60 + int(se) , int(es)*60 + int(ee) , int(t) ))
+			self.lista.append((key, int(ss)*60 + int(se), int(es)*60 + int(ee), int(t)))
 
 	def getDay(self):
 		return self.day
@@ -206,13 +207,10 @@ class FasciaGiornaliera:
 	def getFascia(self):
 		return self.lista		
 		
-	def addFascia(self,key, s,e,t):
-		self.lista.append((key,s,e,t))
+	def addFascia(self, key, s, e, t):
+		self.lista.append((key, s, e, t))
 	
 	def printFascia(self):
 		print(self.day + " (" + str(len(self.lista)) + ")")
 		for line in self.lista:
 			print(line)
-
-
-s = SchedManager()

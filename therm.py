@@ -2,58 +2,62 @@ import RPi.GPIO as GPIO
 import time
 import DS18B20 as DS18B20
 import scheduler
+from threading import Thread
+from threading import Event
 
-pinOn = 26 #Turns on (pin no. 37)
-pinOff = 20 #Turns off
-
-#Inizialize pins
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(pinOn, GPIO.OUT)
-GPIO.setup(pinOff, GPIO.OUT)
-GPIO.output(pinOn,0)
-GPIO.output(pinOff,0)
-
-def turnOn():
-	GPIO.output(pinOn,1)
-	time.sleep(0.1) #Wait for it
-	GPIO.output(pinOn,0)
-
-def turnOff():
-	GPIO.output(pinOff,1)
-	time.sleep(0.1)
-	GPIO.output(pinOff,0)
-
-def getSched():
-	return sched;
-
-# Every minute reads temperature from DS18B20
-sched = scheduler.SchedManager()
+# PINOUT
+pinOn = 26  # Turns on (pin no. 37)
+pinOff = 20  # Turns off
 
 
-try:
-	#while True:
-		old_ST = 20
+class Thermostat(Thread):
+
+	def __init__(self):
+		# Init pins
+		GPIO.setmode(GPIO.BCM)
+		GPIO.setup(pinOn, GPIO.OUT)
+		GPIO.setup(pinOff, GPIO.OUT)
+		GPIO.output(pinOn, 0)
+		GPIO.output(pinOff, 0)
+
+		# Create a new sensor obj, used for reading temperature
+		self.sensor = DS18B20.TempSensor()
+		Thread.__init__(self)
+		self.stopFlag = False
+		self.stopper = Event()
+
+	def __del__(self):
+		self.turnOff()
+		GPIO.cleanup()
+
+	def turnOn(self):
+		GPIO.output(pinOn, 1)
+		time.sleep(0.1)  # Wait for it
+		GPIO.output(pinOn, 0)
+
+	def turnOff(self):
+		GPIO.output(pinOff, 1)
+		time.sleep(0.1)
+		GPIO.output(pinOff, 0)
+
+	def stop(self):
+		self.stopFlag = True
+		self.stopper.set()
+
+	def run(self):
 		try:
-			schedTemp = sched.refTemp() # This is actually a critical section, think to a bad formatted file.
- 		except Exception:
-			schedTemp = old_ST # If something go bad better use last T set. You can even set a custom T (20C) 
- 
-		print("Current ref temp set: ", schedTemp)
-		temp = round(DS18B20.get_temp(), 1) #Grab the T, truncated at first decimal
-		print("Room: ", temp)
-	
-		if temp < schedTemp : # Time to turning on
-			print("turning on")
-			turnOn()
-		if temp > schedTemp : # Turns off
-			print("turning off")
-			turnOff()
+			while not self.stopFlag:
+				# get current temp from sensor
+				currentTemp = round(self.sensor.get_temp(), 1)
+				# get ref temp from scheduler
+				schedTemp = self.scheduler.ref_temp()
 
-		#time.sleep(60)
+				self.turnOn() if currentTemp < schedTemp else self.turnOff()
+				if self.verbose:
+					print("Therm: checking..")
+				self.stopper.wait(60)
+		except Exception as ex:
+			print("Screen: ex")
+			print(ex)
 
-
-except KeyboardInterrupt:
-	print("\nPutting rele on OFF")
-	turnOff()
-	print("Exiting..")
-	GPIO.cleanup()
+		print("Screen: exiting...")
