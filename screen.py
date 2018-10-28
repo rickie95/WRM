@@ -39,9 +39,10 @@ SPI_DEVICE = 0
 
 class Screen(Thread):
     
-    def __init__(self, sensor, verbose=False):
+    def __init__(self, sensor, scheduler, verbose=False):
         self.verbose = True
         self.sensor = sensor
+        self.scheduler = scheduler
         # load fonts
         try:
             path = os.getcwd() + "arial.ttf"
@@ -79,8 +80,8 @@ class Screen(Thread):
         
         draw.text((0, 0), self.getTimeFormatted(), font=self.font)
         draw.text((60, 0), self.mode, font=self.font)
-        draw.text((0, 10), self.currentTemp, font=self.fontBig)
-        draw.text((63, 11), self.setTemp, font=self.fontMid)
+        draw.text((0, 10), self.get_current_t(), font=self.fontBig)
+        draw.text((63, 11), self.get_sched_t(), font=self.fontMid)
         # draw.text((0,40), 'Error 505', font=fontLil)
 
         self.display.image(image)
@@ -89,14 +90,22 @@ class Screen(Thread):
     # Format input parameters (INT, INT, INT)
     def setParam(self, currentTemp, setTemp, mode):
         self.setCurrentTemp(currentTemp)
-        self.setSetTemp(setTemp)
+        self.get_sched_t(setTemp)
         self.setMode(mode)
 
-    def setCurrentTemp(self, currentTemp):
-        self.currentTemp = str(round(currentTemp,1)) + u'°'
+    def get_current_t(self):
+        current_t = self.sensor.get_temp()
+        return str(round(current_t, 1)) + u'°'
     
-    def setSetTemp(self, setTemp):
-        self.setTemp = str(round(setTemp,0)) + u'°'
+    def get_sched_t(self):
+        sched_t = self.scheduler.ref_temp()
+        return str(round(sched_t, 0)) + u'°'
+
+    def get_mode(self):
+        if self.scheduler.get_mode() == "M":
+            return "MAN"
+        else:
+            return "AUTO"
         
     def setMode(self, mode):
         if mode == 0:

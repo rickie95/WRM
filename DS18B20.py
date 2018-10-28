@@ -1,6 +1,7 @@
 import os
 import glob
 import time
+# Could be converted in a static class
 
 
 class TempSensor:

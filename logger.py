@@ -1,7 +1,7 @@
 import DS18B20
 import datetime
 import os
-import scheduler
+import scheduler_xml as scheduler
 import time
 
 s = scheduler.SchedManager()
@@ -20,7 +20,7 @@ try:
 	original.close()
 	t = DS18B20.get_temp()
 	t = round(t,1)
-	settemp = s.refTemp()
+	settemp = s.get_reference_temp()
 	timez = datetime.datetime.now()
 	minut = timez.minute
 	if minut < 10:

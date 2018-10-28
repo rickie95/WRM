@@ -1,7 +1,6 @@
 import RPi.GPIO as GPIO
 import time
 import DS18B20 as DS18B20
-import scheduler
 from threading import Thread
 from threading import Event
 
@@ -12,16 +11,20 @@ pinOff = 20  # Turns off
 
 class Thermostat(Thread):
 
-	def __init__(self):
+	def __init__(self, sensor):
 		# Init pins
-		GPIO.setmode(GPIO.BCM)
-		GPIO.setup(pinOn, GPIO.OUT)
-		GPIO.setup(pinOff, GPIO.OUT)
-		GPIO.output(pinOn, 0)
-		GPIO.output(pinOff, 0)
+		try:
+			GPIO.setmode(GPIO.BCM)
+			GPIO.setup(pinOn, GPIO.OUT)
+			GPIO.setup(pinOff, GPIO.OUT)
+			GPIO.output(pinOn, 0)
+			GPIO.output(pinOff, 0)
 
-		# Create a new sensor obj, used for reading temperature
-		self.sensor = DS18B20.TempSensor()
+			# Create a new sensor obj, used for reading temperature
+			self.sensor = sensor
+		except Exception as ex:
+			print(ex)
+			raise (Exception("Problems with GPIO. Try to reboot"))
 		Thread.__init__(self)
 		self.stopFlag = False
 		self.stopper = Event()
@@ -48,16 +51,16 @@ class Thermostat(Thread):
 		try:
 			while not self.stopFlag:
 				# get current temp from sensor
-				currentTemp = round(self.sensor.get_temp(), 1)
+				current_temp = round(self.sensor.get_temp(), 1)
 				# get ref temp from scheduler
-				schedTemp = self.scheduler.ref_temp()
+				sched_temp = self.scheduler.ref_temp()
 
-				self.turnOn() if currentTemp < schedTemp else self.turnOff()
+				self.turnOn() if current_temp < sched_temp else self.turnOff()
 				if self.verbose:
 					print("Therm: checking..")
 				self.stopper.wait(60)
 		except Exception as ex:
-			print("Screen: ex")
+			print("Thermostat: ex")
 			print(ex)
 
-		print("Screen: exiting...")
+		print("Thermostat: exiting...")
