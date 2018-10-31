@@ -27,7 +27,7 @@ def main(verbose=False):
     # Create and init Screen
     if t_sensor is not None and scheduler is not None:
         try:
-            thermostat = T.Thermostat(t_sensor, scheduler)
+            thermostat = T.Thermostat(t_sensor, scheduler, verbose)
             screen = S.Screen(t_sensor, scheduler, verbose)
         except Exception as ex:
             print(ex)
@@ -37,7 +37,7 @@ def main(verbose=False):
                 thermostat.start()
 
             if screen is not None:
-                screen.setParam(t_sensor.get_temp(), 20, 1)
+                #screen.setParam(t_sensor.get_temp(), 20, 1)
                 screen.start()
 
             while True:
@@ -52,7 +52,7 @@ def main(verbose=False):
 
     print("Everything ok.")
     if screen.is_alive():
-        screen.stop = True
+        screen.stop()
         screen.join()
     if thermostat.is_alive():
         thermostat.stop()

@@ -79,7 +79,7 @@ class Screen(Thread):
         draw.line((0, 39, 84, 39))
         
         draw.text((0, 0), self.getTimeFormatted(), font=self.font)
-        draw.text((60, 0), self.mode, font=self.font)
+        draw.text((60, 0), self.get_mode(), font=self.font)
         draw.text((0, 10), self.get_current_t(), font=self.fontBig)
         draw.text((63, 11), self.get_sched_t(), font=self.fontMid)
         # draw.text((0,40), 'Error 505', font=fontLil)
@@ -99,6 +99,7 @@ class Screen(Thread):
     
     def get_sched_t(self):
         sched_t = self.scheduler.ref_temp()
+	return str(sched_t) + u'°'
         return str(round(sched_t, 0)) + u'°'
 
     def get_mode(self):
@@ -130,20 +131,21 @@ class Screen(Thread):
     def stop(self):
         self.stopFlag = True
         self.stopper.set()
-    
+
     # Thread routine, every 60s
     def run(self):
         try:
             while not self.stopFlag:
                 # get current temp from sensor, then update
-                self.setCurrentTemp(self.sensor.get_temp())
-                self.update()
+                print("pre-update")
+		self.update()
+		print("post-update")
                 if self.verbose:
                     print("Screen: updated")
                 self.stopper.wait(60)
         except Exception as ex:
             print("Screen: ex")
             print(ex)
-            
+ 
         print("Screen: exiting...")
 

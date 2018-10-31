@@ -13,7 +13,7 @@ pinOff = 20  # Turns off
 
 class Thermostat(Thread):
 
-	def __init__(self, sensor, scheduler):
+	def __init__(self, sensor, scheduler, verbose):
 		# Init pins
 		try:
 			GPIO.setmode(GPIO.BCM)
@@ -21,7 +21,7 @@ class Thermostat(Thread):
 			GPIO.setup(pinOff, GPIO.OUT)
 			GPIO.output(pinOn, 0)
 			GPIO.output(pinOff, 0)
-
+			self.test()
 			# Create a new sensor obj, used for reading temperature
 			self.sensor = sensor
 			self.scheduler = scheduler
@@ -29,6 +29,7 @@ class Thermostat(Thread):
 			print(gpio_ex)
 			raise (Exception("Problems with GPIO. Try to reboot"))
 		Thread.__init__(self)
+		self.verbose = verbose
 		self.stopFlag = False
 		self.stopper = Event()
 
@@ -45,6 +46,11 @@ class Thermostat(Thread):
 		GPIO.output(pinOff, 1)
 		time.sleep(0.1)
 		GPIO.output(pinOff, 0)
+
+	def test(self):
+		self.turnOn()
+		time.sleep(1)
+		self.turnOff()
 
 	def stop(self):
 		self.stopFlag = True
