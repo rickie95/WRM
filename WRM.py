@@ -60,7 +60,7 @@ def main(verbose=False):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 0:
+    if len(sys.argv) == 1:
         main()
-    if len(sys.argv) == 1 and (sys.argv[1] == "v"):
+    if len(sys.argv) == 2 and (sys.argv[1] == "v"):
         main(True)
