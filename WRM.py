@@ -27,8 +27,8 @@ def main(verbose=False):
     # Create and init Screen
     if t_sensor is not None and scheduler is not None:
         try:
-            thermostat = T.Thermostat(t_sensor)
-            screen = S.Screen(t_sensor, verbose)
+            thermostat = T.Thermostat(t_sensor, scheduler)
+            screen = S.Screen(t_sensor, scheduler, verbose)
         except Exception as ex:
             print(ex)
 
@@ -60,7 +60,7 @@ def main(verbose=False):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) == 0:
+    if len(sys.argv) == 1:
         main()
-    if len(sys.argv) == 1 and (sys.argv[1] == "v"):
+    if len(sys.argv) == 2 and (sys.argv[1] == "v"):
         main(True)

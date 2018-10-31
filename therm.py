@@ -1,6 +1,8 @@
-import RPi.GPIO as GPIO
+try:
+	import RPi.GPIO as GPIO
+except ImportError as ex:
+	print("Package RPi.GPIO not found, install it.")
 import time
-import DS18B20 as DS18B20
 from threading import Thread
 from threading import Event
 
@@ -11,7 +13,7 @@ pinOff = 20  # Turns off
 
 class Thermostat(Thread):
 
-	def __init__(self, sensor):
+	def __init__(self, sensor, scheduler):
 		# Init pins
 		try:
 			GPIO.setmode(GPIO.BCM)
@@ -22,8 +24,9 @@ class Thermostat(Thread):
 
 			# Create a new sensor obj, used for reading temperature
 			self.sensor = sensor
-		except Exception as ex:
-			print(ex)
+			self.scheduler = scheduler
+		except Exception as gpio_ex:
+			print(gpio_ex)
 			raise (Exception("Problems with GPIO. Try to reboot"))
 		Thread.__init__(self)
 		self.stopFlag = False
@@ -59,8 +62,8 @@ class Thermostat(Thread):
 				if self.verbose:
 					print("Therm: checking..")
 				self.stopper.wait(60)
-		except Exception as ex:
+		except Exception as therm_ex:
 			print("Thermostat: ex")
-			print(ex)
+			print(therm_ex)
 
 		print("Thermostat: exiting...")
