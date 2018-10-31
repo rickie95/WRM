@@ -11,7 +11,7 @@ class SchedManager:
 	NoFreezeT = ""
 	Mode = ""
 	daily_sched = []  # Schedule entries list
-	daily = []
+	#daily = []
 	
 	def __init__(self, verbose=False):
 		self.verbose = verbose
@@ -23,15 +23,16 @@ class SchedManager:
 			print("Scheduler:" + ex)
 			return None
 		
-		mode = self.file.find('mode').text.strip()
-		holidayT = self.file.find('holiday_temp').text.strip()
-		MaxT = self.file.find('max_temp').text.strip()
-
+		SchedManager.Mode = self.file.find('mode').text.strip()
+		SchedManager.HolidayT = self.file.find('holiday_temp').text.strip()
+		SchedManager.MaxT = self.file.find('max_temp').text.strip()
+		SchedManager.ManualT = self.file.find('manual_temp').text.strip()
+		# if saily sched is not empty
 		SchedManager.daily_sched = self.setFasciaD()
-		if self.verbose:
-			print(mode)
-			print(holidayT)
-			self.f_gg.print_daily_sched()
+		if self.verbose==False:
+			print("Mode: " + SchedManager.Mode)
+			print("Manual t" + SchedManager.ManualT)
+			SchedManager.daily_sched.print_daily_sched()
 
 	def setFasciaD(self):  # Read the file, looking for scheduler entries
 		daily = self.file.find('daily_scheduling')
@@ -53,38 +54,38 @@ class SchedManager:
 		if self.Mode == "W":
 			return self.get_weekly_temp()
 		if self.Mode == "H":
-			return self.HolidayT
+			return SchedManager.HolidayT
 		if self.Mode == "F":
-			return self.NoFreezeT
+			return SchedManager.NoFreezeT
 		if self.Mode == "D":
 			return self.get_daily_temp()
 		if self.Mode == "M":
-			return self.ManualT
+			return SchedManager.ManualT
 
 	def get_daily_temp(self):
 		time = datetime.datetime.now()
-		return self.daily.getTempByTime(time.hour, time.minute)
+		return SchedManager.daily_sched.getTempByTime(time.hour, time.minute)
 		
 	def get_weekly_temp(self):
 		time = datetime.datetime.now()
 		DOW = datetime.datetime.today().weekday()
-		fascia = self.daily_sched[DOW]
+		fascia = SchedManager.daily_sched[DOW]
 		return fascia.get_temp_by_time(time.hour, time.minute)
 
 	def get_mode(self):
-		return self.Mode
+		return SchedManager.Mode
 
 	def set_manual_temp(self, temp):
-		self.ManualT = int(temp)
+		SchedManager.ManualT = int(temp)
 
 	def set_holiday_temp(self, temp):
-		self.HolidayT = int(temp)
+		SchedManager.HolidayT = int(temp)
 
 	def set_no_freeze_temp(self, temp):
-		self.NoFreezeT = int(temp)
+		SchedManager.NoFreezeT = int(temp)
 
 	def set_mode(self, mode):
-		self.Mode = mode
+		SchedManager.Mode = mode
 
 	@staticmethod
 	def add_temp(s, e, t):

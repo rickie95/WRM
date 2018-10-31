@@ -1,17 +1,37 @@
 <document>
-	<mode>	MANUAL	</mode>
+	<mode>M</mode>
 	<manual_temp>	17	</manual_temp>
 	<holiday_temp>15</holiday_temp>
 	<max_temp> 25 </max_temp>
 	<daily_scheduling>
+		<element order="0">
+			<start_time hour="0" minute="00"></start_time>
+			<end_time hour="6" minute="30"></end_time>
+			<temp value="18"></temp>
+		</element>
 		<element order="1">
 			<start_time hour="6" minute="30"></start_time>
 			<end_time hour="8" minute="30"></end_time>
-			<temp value="18"></temp>
+			<temp value="20"></temp>
 		</element>
 		<element order="2">
 			<start_time hour="8" minute="30"></start_time>
-			<end_time hour="11" minute="45"></end_time>
+			<end_time hour="12" minute="00"></end_time>
+			<temp value="17"></temp>
+		</element>
+		<element order="3">
+			<start_time hour="12" minute="00"></start_time>
+			<end_time hour="13" minute="30"></end_time>
+			<temp value="20"></temp>
+		</element>
+		<element order="4">
+			<start_time hour="13" minute="30"></start_time>
+			<end_time hour="19" minute="00"></end_time>
+			<temp value="18"></temp>
+		</element>
+		<element order="5">
+			<start_time hour="19" minute="00"></start_time>
+			<end_time hour="00" minute="00"></end_time>
 			<temp value="20"></temp>
 		</element>
 	</daily_scheduling>
